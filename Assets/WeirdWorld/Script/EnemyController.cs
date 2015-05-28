@@ -1,37 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UserController : MonoBehaviour {
+public class EnemyController : MonoBehaviour {
+	
+	public const int LayerEnemy = 10;
 
 	CharacterController characterController;
-
-	// children
-	Transform gunpointTrans;
-
+	
 	// move
 	Vector3 vec3MoveDir = Vector3.zero;
 	float moveSpeed = 5f;
 	float jumpSpeed = 5f;
-
+	
 	// rotate
 	float rotSpeed = 90f;
 
-	// shoot
-	GameObject bulletPrefObj;
-	float shootPower = 20f;
-
 	void Awake () {
 		this.characterController = GetComponent<CharacterController> ();
-
-		this.gunpointTrans = this.transform.Find ("Gunpoint");
-
-		this.bulletPrefObj = Resources.Load ("Prefab/User Bullet") as GameObject;
 	}
-
+	
 	void Update() {
 		this.Move ();
 		this.Rotate ();
-		this.Shoot ();
 	}
 
 	void Move () {
@@ -46,17 +36,12 @@ public class UserController : MonoBehaviour {
 		this.vec3MoveDir.y += Physics.gravity.y * Time.deltaTime;
 		this.characterController.Move(this.vec3MoveDir * Time.deltaTime);
 	}
-
+	
 	void Rotate () {
 		transform.Rotate(0, Input.GetAxis("Horizontal") * rotSpeed * Time.deltaTime, 0);
 	}
 
-	void Shoot () {
-		if (Input.GetMouseButtonDown (0)) {
-			Transform bulletTrans = (Instantiate (this.bulletPrefObj) as GameObject).transform;
-			bulletTrans.position = this.gunpointTrans.position;
-			bulletTrans.rotation = this.gunpointTrans.rotation;
-			bulletTrans.GetComponent<Rigidbody> ().AddForce (this.transform.forward * this.shootPower, ForceMode.Impulse);
-		}
+	public void CollidedByBullet () {
+		Destroy (this.gameObject);
 	}
 }
