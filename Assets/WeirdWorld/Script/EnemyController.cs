@@ -15,8 +15,13 @@ public class EnemyController : MonoBehaviour {
 	// rotate
 	float rotSpeed = 90f;
 
-	void Awake () {
+	// flee
+	bool doesFleeNow = false;
+
+	void Start () {
 		this.characterController = GetComponent<CharacterController> ();
+
+		StartCoroutine ("EnuFleeCheck");
 	}
 	
 	void Update() {
@@ -26,12 +31,14 @@ public class EnemyController : MonoBehaviour {
 
 	void Move () {
 		if (this.characterController.isGrounded) {
-			this.vec3MoveDir = new Vector3(0, 0, Input.GetAxis("Vertical"));
-			this.vec3MoveDir = this.transform.TransformDirection(vec3MoveDir);
-			this.vec3MoveDir *= moveSpeed;
-			if (Input.GetButton("Jump"))
-				this.vec3MoveDir.y = jumpSpeed;
-			
+			if (doesFleeNow == true) {
+				this.vec3MoveDir = this.transform.position - UserController.Instance.transform.position;
+				this.vec3MoveDir.Normalize();
+				this.vec3MoveDir *= moveSpeed;
+			}
+			else {
+				this.vec3MoveDir.x = this.vec3MoveDir.z = 0;
+			}
 		}
 		this.vec3MoveDir.y += Physics.gravity.y * Time.deltaTime;
 		this.characterController.Move(this.vec3MoveDir * Time.deltaTime);
@@ -39,6 +46,17 @@ public class EnemyController : MonoBehaviour {
 	
 	void Rotate () {
 		transform.Rotate(0, Input.GetAxis("Horizontal") * rotSpeed * Time.deltaTime, 0);
+	}
+
+	IEnumerator EnuFleeCheck () {
+		while (true) {
+			if (Vector3.Distance ( this.transform.position, UserController.Instance.transform.position ) < 30f)
+				doesFleeNow = true;
+			else
+				doesFleeNow = false;
+
+			yield return new WaitForSeconds( 2f );
+		}
 	}
 
 	public void CollidedByBullet () {

@@ -2,6 +2,17 @@
 using System.Collections;
 
 public class UserController : MonoBehaviour {
+	
+	// singleton --->
+	protected static UserController instance = null;
+	public static UserController Instance { get { if (instance == null) { Debug.LogError("Instance is not set"); } return instance; } }
+	void Awake () {
+		if ( instance != null && instance != this ) { Destroy ( this.gameObject ); return; }
+		else { instance = this; }
+		DontDestroyOnLoad (this.gameObject);
+	}
+	void OnApplicationQuit() { instance = null; }
+	// <--- singleton
 
 	CharacterController characterController;
 
@@ -20,7 +31,7 @@ public class UserController : MonoBehaviour {
 	GameObject bulletPrefObj;
 	float shootPower = 20f;
 
-	void Awake () {
+	void Start () {
 		this.characterController = GetComponent<CharacterController> ();
 
 		this.gunpointTrans = this.transform.Find ("Gunpoint");
