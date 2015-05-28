@@ -9,11 +9,7 @@ public class EnemyController : MonoBehaviour {
 	
 	// move
 	Vector3 vec3MoveDir = Vector3.zero;
-	float moveSpeed = 5f;
-	float jumpSpeed = 5f;
-	
-	// rotate
-	float rotSpeed = 90f;
+	float moveSpeed = 8f;
 
 	// flee
 	bool doesFleeNow = false;
@@ -26,7 +22,6 @@ public class EnemyController : MonoBehaviour {
 	
 	void Update() {
 		this.Move ();
-		this.Rotate ();
 	}
 
 	void Move () {
@@ -43,17 +38,19 @@ public class EnemyController : MonoBehaviour {
 		this.vec3MoveDir.y += Physics.gravity.y * Time.deltaTime;
 		this.characterController.Move(this.vec3MoveDir * Time.deltaTime);
 	}
-	
-	void Rotate () {
-		transform.Rotate(0, Input.GetAxis("Horizontal") * rotSpeed * Time.deltaTime, 0);
-	}
 
 	IEnumerator EnuFleeCheck () {
 		while (true) {
-			if (Vector3.Distance ( this.transform.position, UserController.Instance.transform.position ) < 30f)
-				doesFleeNow = true;
-			else
-				doesFleeNow = false;
+			doesFleeNow = false;
+			if (Vector3.Distance ( this.transform.position, UserController.Instance.transform.position ) < 30f) {
+				RaycastHit hit;
+				
+				if ( Physics.Raycast( this.transform.position, UserController.Instance.transform.position - this.transform.position, out hit ) ) {
+					if ( hit.transform.gameObject.layer == UserController.LayerUser ) {
+						doesFleeNow = true;
+					}
+				}
+			}
 
 			yield return new WaitForSeconds( 2f );
 		}

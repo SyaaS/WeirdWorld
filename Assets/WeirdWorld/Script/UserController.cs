@@ -13,6 +13,8 @@ public class UserController : MonoBehaviour {
 	}
 	void OnApplicationQuit() { instance = null; }
 	// <--- singleton
+	
+	public const int LayerUser = 8;
 
 	CharacterController characterController;
 
